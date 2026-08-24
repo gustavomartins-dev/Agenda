@@ -1,5 +1,10 @@
 # Agenda Pessoal
 
+> [!IMPORTANT]
+> **Este projeto foi desenvolvido com assistência substancial de inteligência artificial.**
+> A ideia, a direção, as decisões finais e a validação são de Gustavo Martins;
+> planejamento, implementação, testes e documentação contaram com o apoio de ferramentas de IA.
+
 Aplicação web de agenda pessoal: calendário mensal, compromissos por categoria, busca e
 filtros — tudo rodando **localmente no navegador**, sem login, sem backend e sem rede.
 Os dados ficam no `localStorage` da própria máquina.

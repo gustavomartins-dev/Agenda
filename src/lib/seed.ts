@@ -2,7 +2,7 @@ import type { Appointment } from '../types';
 import { addDaysISO, todayISO } from './dates';
 import { createId } from './storage';
 
-type SeedItem = Omit<Appointment, 'id' | 'date' | 'createdAt' | 'updatedAt'> & {
+type SeedItem = Omit<Appointment, 'id' | 'date' | 'completed' | 'createdAt' | 'updatedAt'> & {
   /** Deslocamento em dias a partir de hoje. */
   offset: number;
 };
@@ -65,6 +65,7 @@ export function createSeedAppointments(referenceISO: string = todayISO()): Appoi
     ...item,
     id: createId(),
     date: addDaysISO(referenceISO, offset),
+    completed: false,
     createdAt: now,
     updatedAt: now,
   }));

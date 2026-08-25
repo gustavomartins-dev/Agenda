@@ -19,6 +19,7 @@ function make(overrides: Partial<Appointment> & { id: string }): Appointment {
     startTime: '09:00',
     endTime: '10:00',
     categoryId: 'trabalho',
+    completed: false,
     createdAt: '2026-03-01T00:00:00.000Z',
     updatedAt: '2026-03-01T00:00:00.000Z',
     ...overrides,

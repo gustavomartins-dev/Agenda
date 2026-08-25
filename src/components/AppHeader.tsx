@@ -1,6 +1,7 @@
 import { CalendarIcon, PlusIcon } from './Icons';
 
 interface AppHeaderProps {
+  showActions?: boolean;
   totalAppointments: number;
   upcomingCount: number;
   onCreate: () => void;
@@ -9,6 +10,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({
+  showActions = true,
   totalAppointments,
   upcomingCount,
   onCreate,
@@ -25,13 +27,13 @@ export function AppHeader({
           <h1 className="app-header__title">Agenda Pessoal</h1>
           <p className="app-header__subtitle">
             {totalAppointments === 0
-              ? 'Tudo salvo apenas neste navegador'
+              ? 'Agenda conectada ao banco de dados'
               : `${totalAppointments} compromisso(s) salvos · ${upcomingCount} a partir de hoje`}
           </p>
         </div>
       </div>
 
-      <div className="app-header__actions">
+      {showActions ? <div className="app-header__actions">
         {totalAppointments === 0 ? (
           <button type="button" className="button button--ghost button--sm" onClick={onRestoreSamples}>
             Carregar exemplos
@@ -45,7 +47,7 @@ export function AppHeader({
           <PlusIcon />
           <span className="app-header__cta-label">Novo compromisso</span>
         </button>
-      </div>
+      </div> : null}
     </header>
   );
 }

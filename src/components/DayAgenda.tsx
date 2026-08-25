@@ -14,6 +14,7 @@ interface DayAgendaProps {
   onCreate: () => void;
   onEdit: (appointment: Appointment) => void;
   onDelete: (appointment: Appointment) => void;
+  onToggleCompletion: (appointment: Appointment) => void;
   onClearFilters: () => void;
 }
 
@@ -26,6 +27,7 @@ export function DayAgenda({
   onCreate,
   onEdit,
   onDelete,
+  onToggleCompletion,
   onClearFilters,
 }: DayAgendaProps) {
   const relative = relativeDayLabel(selectedDate, todayISODate);
@@ -63,6 +65,7 @@ export function DayAgenda({
               appointment={appointment}
               onEdit={onEdit}
               onDelete={onDelete}
+              onToggleCompletion={onToggleCompletion}
             />
           ))}
         </ul>

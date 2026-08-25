@@ -19,6 +19,8 @@ export interface Appointment {
   /** Horário final no formato `HH:MM` (24h). */
   endTime: string;
   categoryId: CategoryId;
+  /** Marcado quando o compromisso já foi cumprido. */
+  completed: boolean;
   createdAt: string;
   updatedAt: string;
 }

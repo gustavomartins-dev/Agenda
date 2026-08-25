@@ -33,6 +33,9 @@ function parseAppointment(value: unknown): Appointment | null {
     startTime,
     endTime,
     categoryId: isCategoryId(raw.categoryId) ? raw.categoryId : 'outros',
+    // Qualquer coisa que não seja `true` conta como pendente — registros antigos
+    // não têm o campo e devem voltar como não concluídos.
+    completed: raw.completed === true,
     createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : now,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : now,
   };

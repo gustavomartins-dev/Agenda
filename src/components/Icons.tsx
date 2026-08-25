@@ -83,6 +83,15 @@ export function ClockIcon({ className }: IconProps) {
   );
 }
 
+export function CheckCircleIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m8.4 12.2 2.5 2.5 4.7-4.9" />
+    </svg>
+  );
+}
+
 export function CalendarIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>

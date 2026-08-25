@@ -9,6 +9,7 @@ interface SearchResultsProps {
   onSelectDate: (iso: string) => void;
   onEdit: (appointment: Appointment) => void;
   onDelete: (appointment: Appointment) => void;
+  onToggleCompletion: (appointment: Appointment) => void;
   onClearFilters: () => void;
 }
 
@@ -18,6 +19,7 @@ export function SearchResults({
   onSelectDate,
   onEdit,
   onDelete,
+  onToggleCompletion,
   onClearFilters,
 }: SearchResultsProps) {
   if (appointments.length === 0) {
@@ -62,6 +64,7 @@ export function SearchResults({
                   appointment={appointment}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  onToggleCompletion={onToggleCompletion}
                   showDate
                 />
               ))}

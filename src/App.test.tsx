@@ -17,6 +17,7 @@ function fixture(overrides: Partial<Appointment> & { id: string }): Appointment 
     startTime: '09:00',
     endTime: '10:00',
     categoryId: 'trabalho',
+    completed: false,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
@@ -336,6 +337,90 @@ describe('gestão dos dados locais', () => {
 
     await user.click(screen.getByRole('button', { name: 'Carregar exemplos' }));
     expect(await screen.findByText('Reunião de alinhamento semanal')).toBeInTheDocument();
+  });
+});
+
+describe('conclusão de compromissos', () => {
+  function cardOf(title: string): HTMLElement {
+    return screen.getByText(title).closest('li') as HTMLElement;
+  }
+
+  it('marca pelo cartão, aplica distinção visual e persiste', async () => {
+    seedStorage([fixture({ id: '1', title: 'Almoço com cliente' })]);
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(cardOf('Almoço com cliente')).toHaveAttribute('data-completed', 'false');
+    const toggle = within(cardOf('Almoço com cliente')).getByRole('button', {
+      name: /^marcar como concluído/i,
+    });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(toggle);
+
+    await waitFor(() =>
+      expect(cardOf('Almoço com cliente')).toHaveAttribute('data-completed', 'true'),
+    );
+    const concluido = cardOf('Almoço com cliente');
+    expect(within(concluido).getByText('Concluído')).toBeInTheDocument();
+    expect(
+      within(concluido).getByRole('button', { name: /^marcar como não concluído/i }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(storedAppointments()[0]?.completed).toBe(true);
+  });
+
+  it('volta ao estado pendente ao desmarcar', async () => {
+    seedStorage([fixture({ id: '1', title: 'Academia', completed: true })]);
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(cardOf('Academia')).toHaveAttribute('data-completed', 'true');
+    await user.click(
+      within(cardOf('Academia')).getByRole('button', { name: /^marcar como não concluído/i }),
+    );
+
+    await waitFor(() => expect(cardOf('Academia')).toHaveAttribute('data-completed', 'false'));
+    expect(within(cardOf('Academia')).queryByText('Concluído')).not.toBeInTheDocument();
+    expect(storedAppointments()[0]?.completed).toBe(false);
+  });
+
+  it('mantém edição e exclusão em um compromisso concluído', async () => {
+    seedStorage([fixture({ id: '1', title: 'Consulta', completed: true })]);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Editar compromisso Consulta' }));
+    const dialog = await screen.findByRole('dialog');
+    const titleInput = within(dialog).getByLabelText(/^título/i);
+    await user.clear(titleInput);
+    await user.type(titleInput, 'Consulta remarcada');
+    await user.click(within(dialog).getByRole('button', { name: /salvar alterações/i }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(cardOf('Consulta remarcada')).toHaveAttribute('data-completed', 'true');
+    expect(storedAppointments()[0]?.completed).toBe(true);
+
+    await user.click(screen.getByRole('button', { name: 'Excluir compromisso Consulta remarcada' }));
+    const confirmDialog = await screen.findByRole('alertdialog');
+    await user.click(within(confirmDialog).getByRole('button', { name: 'Excluir' }));
+
+    await waitFor(() => expect(screen.queryByText('Consulta remarcada')).not.toBeInTheDocument());
+    expect(storedAppointments()).toHaveLength(0);
+  });
+
+  it('mostra o compromisso criado como não concluído', async () => {
+    seedStorage([]);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await openNewAppointmentDialog(user);
+    const dialog = await screen.findByRole('dialog');
+    await user.type(within(dialog).getByLabelText(/^título/i), 'Recém-criado');
+    await user.click(within(dialog).getByRole('button', { name: /criar compromisso/i }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    expect(cardOf('Recém-criado')).toHaveAttribute('data-completed', 'false');
+    expect(storedAppointments()[0]?.completed).toBe(false);
   });
 });
 

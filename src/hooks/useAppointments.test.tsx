@@ -125,6 +125,61 @@ describe('useAppointments', () => {
     expect(loadAppointments().length).toBe(result.current.appointments.length);
   });
 
+  it('cria compromissos não concluídos', () => {
+    markAsUsed();
+    const { result } = renderHook(() => useAppointments());
+
+    act(() => {
+      result.current.addAppointment(draft);
+    });
+
+    expect(result.current.appointments[0]?.completed).toBe(false);
+    expect(loadAppointments()[0]?.completed).toBe(false);
+  });
+
+  it('alterna a conclusão e persiste os dois sentidos', () => {
+    markAsUsed();
+    const { result } = renderHook(() => useAppointments());
+
+    let id = '';
+    act(() => {
+      id = result.current.addAppointment(draft).id;
+    });
+
+    act(() => {
+      result.current.toggleCompletion(id);
+    });
+    expect(result.current.appointments[0]?.completed).toBe(true);
+    expect(loadAppointments()[0]?.completed).toBe(true);
+
+    act(() => {
+      result.current.toggleCompletion(id);
+    });
+    expect(result.current.appointments[0]?.completed).toBe(false);
+    expect(loadAppointments()[0]?.completed).toBe(false);
+  });
+
+  it('preserva a conclusão ao editar os outros campos', () => {
+    markAsUsed();
+    const { result } = renderHook(() => useAppointments());
+
+    let id = '';
+    act(() => {
+      id = result.current.addAppointment(draft).id;
+    });
+    act(() => {
+      result.current.toggleCompletion(id);
+    });
+
+    act(() => {
+      result.current.updateAppointment(id, { ...draft, title: 'Outro título' });
+    });
+
+    expect(result.current.appointments[0]?.title).toBe('Outro título');
+    expect(result.current.appointments[0]?.completed).toBe(true);
+    expect(loadAppointments()[0]?.completed).toBe(true);
+  });
+
   it('ignora registros corrompidos ao carregar', () => {
     markAsUsed();
     saveAppointments([]);

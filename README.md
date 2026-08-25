@@ -6,8 +6,7 @@
 > planejamento, implementação, testes e documentação contaram com o apoio de ferramentas de IA.
 
 Aplicação web de agenda pessoal: calendário mensal, compromissos por categoria, busca e
-filtros — tudo rodando **localmente no navegador**, sem login, sem backend e sem rede.
-Os dados ficam no `localStorage` da própria máquina.
+filtros. Os dados são persistidos em um banco SQLite por uma API local.
 
 Interface em **pt-BR**, responsiva para desktop e celular, com tema claro e escuro
 automáticos (segue a preferência do sistema).
@@ -29,6 +28,13 @@ automáticos (segue a preferência do sistema).
 - Campos: título, descrição, data, horário inicial, horário final e categoria com cor.
 - Duração calculada automaticamente (ex.: `1 h 30 min`).
 - Lista do dia selecionado ordenada por horário.
+- **Marcar como concluído** direto no cartão, em um clique, e desmarcar do mesmo jeito.
+  O cartão concluído recebe distinção visual (título riscado, borda e selo verdes) e
+  continua editável e excluível. A conclusão sobrevive à edição dos outros campos.
+
+**Minha coleção**
+- Aba separada para listas pessoais por tópico (ex.: Filmes, Assistir).
+- Adicionar e apagar itens, com busca dentro do tópico e bloqueio de item repetido.
 
 **Busca e filtros**
 - Busca por texto em título e descrição, tolerante a acentos e maiúsculas
@@ -56,6 +62,8 @@ automáticos (segue a preferência do sistema).
 - Diálogos com `aria-modal`, foco preso enquanto abertos, fechamento por `Esc` ou clique no
   fundo, e devolução do foco ao elemento que os abriu.
 - Confirmação de exclusão usa `alertdialog`.
+- O botão de conclusão é um alternador com `aria-pressed` e rótulo que nomeia o
+  compromisso, então a mudança de estado é anunciada sem depender só da cor.
 - Regiões `aria-live` anunciam criação, edição, exclusão e retorno ao dia de hoje.
 - Link "Ir para o conteúdo", rótulos em todos os campos e respeito a
   `prefers-reduced-motion`.
@@ -72,9 +80,10 @@ automáticos (segue a preferência do sistema).
 | Testes | Vitest 4 + Testing Library + jsdom |
 | Lint | ESLint 10 (flat config) + typescript-eslint |
 | Estilo | CSS puro com custom properties (sem framework de UI) |
-| Persistência | `localStorage` |
+| Backend | Node.js + Express |
+| Persistência | SQLite (`data/agenda.sqlite`) |
 
-Sem dependências de runtime além de `react` e `react-dom`.
+O comando de desenvolvimento inicia a interface e a API juntas.
 
 ---
 
@@ -96,8 +105,8 @@ npm run build
 npm run preview      # http://localhost:4173
 ```
 
-O `build` gera arquivos estáticos em `dist/` — basta servi-los por qualquer servidor de
-estáticos ou hospedagem de páginas. Não há variável de ambiente nem backend a configurar.
+O `build` gera a interface em `dist/`. Depois, `npm start` serve a interface, a API e o
+banco local pela porta 3001.
 
 ---
 
@@ -116,7 +125,31 @@ estáticos ou hospedagem de páginas. Não há variável de ambiente nem backend
 
 ---
 
-## 5. Estrutura
+## 5. API local
+
+| Método e rota | O que faz |
+|---|---|
+| `GET /api/health` | Sinal de vida do servidor |
+| `GET /api/appointments` | Lista os compromissos ordenados por data e horário |
+| `POST /api/appointments` | Cria um compromisso — sempre pendente |
+| `PUT /api/appointments/:id` | Edita os campos do compromisso, preservando a conclusão |
+| `PATCH /api/appointments/:id/completion` | Define a conclusão (`{ "completed": true \| false }`) |
+| `DELETE /api/appointments/:id` | Exclui um compromisso |
+| `DELETE /api/appointments` | Limpa a agenda |
+| `GET /api/collection/topics` | Lista os tópicos da coleção com a contagem de itens |
+| `GET`/`POST /api/collection/topics/:id/items` | Lê e cria itens de um tópico |
+| `DELETE /api/collection/items/:id` | Apaga um item |
+
+A rota de conclusão recebe o **estado desejado** em vez de alternar, o que a torna
+idempotente: reenviar o mesmo valor devolve o mesmo resultado, sem corrida entre cliques.
+
+O esquema é versionado em `schema_migrations` e as migrações são **aditivas** — a coluna
+`completed` entrou por `ALTER TABLE ... ADD COLUMN`, sem reescrever nenhuma linha, e bancos
+já existentes continuam com todos os compromissos, valendo como não concluídos.
+
+---
+
+## 6. Estrutura
 
 ```
 src/
@@ -131,10 +164,17 @@ src/
 │   ├── categories.ts        # catálogo fixo de categorias e cores
 │   ├── dates.ts             # datas em horário local, grade do mês, formatação pt-BR
 │   ├── seed.ts              # compromissos de exemplo
-│   ├── storage.ts           # leitura/escrita tolerante a falhas no localStorage
+│   ├── api.ts               # cliente HTTP do banco de dados
+│   ├── storage.ts           # compatibilidade e isolamento dos testes antigos
 │   └── validation.ts        # regras de validação do formulário
 ├── components/              # MonthCalendar, DayAgenda, AppointmentDialog, Modal, …
 └── test/setup.ts            # setup do Vitest (jest-dom, limpeza do localStorage)
+
+server/
+├── index.mjs                # sobe o servidor HTTP
+├── app.mjs                  # rotas da API (agenda e coleção)
+├── database.mjs             # abre data/agenda.sqlite e aplica o esquema
+└── schema.mjs               # tabelas, migrações e serialização das linhas
 ```
 
 Duas decisões que valem o registro:
@@ -148,7 +188,7 @@ Duas decisões que valem o registro:
 
 ---
 
-## 6. Testes
+## 7. Testes
 
 ```bash
 npm test
@@ -157,16 +197,20 @@ npm test
 A suíte cobre as funções puras (datas, validação, busca/ordenação, storage), o hook de
 estado com persistência e os fluxos de ponta a ponta na aplicação renderizada: primeira
 carga com exemplos, criação, edição, exclusão com confirmação, busca, filtros por
-categoria, navegação de mês, botão Hoje, navegação por teclado no calendário, fechamento de
-diálogo por `Esc` e permanência dos dados após recarregar.
+categoria, navegação de mês, botão Hoje, navegação por teclado no calendário, conclusão e
+reabertura de compromissos, fechamento de diálogo por `Esc` e permanência dos dados após
+recarregar.
+
+Os testes do servidor (`server/*.test.mjs`) rodam em Node com um banco temporário por teste
+— o `data/agenda.sqlite` do usuário nunca é tocado. Eles cobrem a API de conclusão e a
+migração aplicada sobre o esquema antigo, verificando que nada se perde no caminho.
 
 ---
 
-## 7. Privacidade e limites conhecidos
+## 8. Privacidade e limites conhecidos
 
-- Nada trafega pela rede: não há chamadas HTTP em runtime.
-- Os dados vivem no `localStorage` **daquele navegador e daquele perfil**. Trocar de
-  navegador, de máquina ou usar aba anônima significa uma agenda vazia. Limpar os dados do
-  site apaga a agenda.
+- A interface acessa a API local em `/api`; não há serviço externo.
+- Os dados vivem em `data/agenda.sqlite` e são compartilhados por todos os navegadores que
+  acessarem esta instalação da agenda.
 - Não há sincronização, múltiplos usuários, compromissos recorrentes, notificações,
   fuso horário por evento nem exportação — fora do escopo desta versão.

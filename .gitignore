@@ -16,6 +16,9 @@ coverage/
 .vite/
 *.tsbuildinfo
 .eslintcache
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
 
 # Variáveis de ambiente
 .env

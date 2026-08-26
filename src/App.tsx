@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { AppHeader } from './components/AppHeader';
 import { AppointmentDialog } from './components/AppointmentDialog';
+import { AssistantPanel } from './components/AssistantPanel';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { CollectionPanel } from './components/CollectionPanel';
 import { DayAgenda } from './components/DayAgenda';
@@ -28,7 +29,7 @@ type ConfirmState =
   | null;
 
 export default function App() {
-  const { appointments, loading, error, addAppointment, updateAppointment, toggleCompletion, removeAppointment, clearAll, restoreSamples } =
+  const { appointments, loading, error, addAppointment, updateAppointment, toggleCompletion, removeAppointment, clearAll, restoreSamples, refreshAppointments } =
     useAppointments();
 
   const [today] = useState(todayISO);
@@ -38,7 +39,7 @@ export default function App() {
   const [dialog, setDialog] = useState<DialogState>(null);
   const [confirm, setConfirm] = useState<ConfirmState>(null);
   const [statusMessage, setStatusMessage] = useState('');
-  const [activeView, setActiveView] = useState<'agenda' | 'collection'>('agenda');
+  const [activeView, setActiveView] = useState<'agenda' | 'assistant' | 'collection'>('agenda');
 
   const filtersActive = isFilterActive(filters);
   const searching = filters.query.trim().length > 0;
@@ -126,6 +127,7 @@ export default function App() {
 
         <nav className="app-tabs" aria-label="Seções principais">
           <button type="button" className="app-tabs__tab" aria-current={activeView === 'agenda' ? 'page' : undefined} onClick={() => setActiveView('agenda')}>Agenda</button>
+          <button type="button" className="app-tabs__tab" aria-current={activeView === 'assistant' ? 'page' : undefined} onClick={() => setActiveView('assistant')}>Assistente</button>
           <button type="button" className="app-tabs__tab" aria-current={activeView === 'collection' ? 'page' : undefined} onClick={() => setActiveView('collection')}>Minha coleção</button>
         </nav>
 
@@ -179,11 +181,11 @@ export default function App() {
               filtersActive={filtersActive}
             />
           </div>
-        </main> : <CollectionPanel />}
+        </main> : activeView === 'assistant' ? <AssistantPanel onChanged={refreshAppointments} /> : <CollectionPanel />}
 
         <footer className="app__footer">
           <p>
-            {loading ? 'Conectando ao banco de dados…' : error ? `Aviso: ${error}` : 'Dados salvos no banco SQLite da agenda.'}
+            {loading ? 'Conectando à Batcaverna…' : error ? `Aviso: ${error}` : 'Arquivo seguro · dados salvos localmente na Batcaverna.'}
           </p>
         </footer>
       </div>

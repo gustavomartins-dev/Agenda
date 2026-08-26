@@ -27,6 +27,15 @@ export function useAppointments() {
   const [loading, setLoading] = useState(!testMode);
   const [error, setError] = useState('');
 
+  const refreshAppointments = useCallback(async (): Promise<void> => {
+    if (testMode) {
+      setAppointments(sortAppointments(loadAppointments()));
+      return;
+    }
+    const items = await appointmentsApi.list();
+    setAppointments(sortAppointments(items));
+  }, []);
+
   useEffect(() => {
     if (testMode) return;
     clearStorage();
@@ -111,8 +120,8 @@ export function useAppointments() {
       .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'Erro ao criar exemplos.'));
   }, []);
 
-  return useMemo(() => ({ appointments, loading, error, addAppointment, updateAppointment, toggleCompletion, removeAppointment, clearAll, restoreSamples }),
-    [appointments, loading, error, addAppointment, updateAppointment, toggleCompletion, removeAppointment, clearAll, restoreSamples]);
+  return useMemo(() => ({ appointments, loading, error, addAppointment, updateAppointment, toggleCompletion, removeAppointment, clearAll, restoreSamples, refreshAppointments }),
+    [appointments, loading, error, addAppointment, updateAppointment, toggleCompletion, removeAppointment, clearAll, restoreSamples, refreshAppointments]);
 }
 
 export type UseAppointments = ReturnType<typeof useAppointments>;

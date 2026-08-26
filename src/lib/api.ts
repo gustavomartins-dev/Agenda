@@ -1,4 +1,4 @@
-import type { Appointment, AppointmentDraft } from '../types';
+import type { Appointment, AppointmentDraft, AssistantProposal } from '../types';
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -20,4 +20,9 @@ export const appointmentsApi = {
     request<Appointment>(`/api/appointments/${encodeURIComponent(id)}/completion`, { method: 'PATCH', body: JSON.stringify({ completed }) }),
   remove: (id: string) => request<void>(`/api/appointments/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   clear: () => request<void>('/api/appointments', { method: 'DELETE' }),
+};
+
+export const assistantApi = {
+  chat: (message: string) => request<{ proposal: AssistantProposal }>('/api/assistant/chat', { method: 'POST', body: JSON.stringify({ message }) }),
+  confirm: (proposalId: string) => request<{ type: 'create' | 'update' | 'delete'; appointmentId: string }>('/api/assistant/confirm', { method: 'POST', body: JSON.stringify({ proposalId }) }),
 };

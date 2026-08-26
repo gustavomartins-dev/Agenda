@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { CATEGORY_IDS, rowToAppointment } from './schema.mjs';
+import { HermesAssistant } from './hermes.mjs';
 
 const categories = new Set(CATEGORY_IDS);
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -34,9 +35,10 @@ function validateDraft(value) {
  * Monta a API da agenda sobre a conexão recebida.
  * `serveStatic` fica desligado nos testes, que só exercitam as rotas `/api`.
  */
-export function createApp(database, { serveStatic = true } = {}) {
+export function createApp(database, { serveStatic = true, assistant: assistantOverride } = {}) {
   const app = express();
   app.use(express.json({ limit: '32kb' }));
+  const assistant = assistantOverride ?? new HermesAssistant(database);
 
   /** Relê o compromisso gravado — a resposta reflete exatamente o banco. */
   const findAppointment = (id) => {
@@ -45,6 +47,18 @@ export function createApp(database, { serveStatic = true } = {}) {
   };
 
   app.get('/api/health', (_request, response) => response.json({ ok: true }));
+
+  app.post('/api/assistant/chat', async (request, response, next) => {
+    const message = typeof request.body?.message === 'string' ? request.body.message.trim() : '';
+    if (!message || message.length > 1000) return response.status(400).json({ error: 'Envie uma mensagem com até 1000 caracteres.' });
+    try { return response.json(await assistant.chat(message)); } catch (reason) { return next(reason); }
+  });
+
+  app.post('/api/assistant/confirm', (request, response, next) => {
+    const proposalId = typeof request.body?.proposalId === 'string' ? request.body.proposalId : '';
+    if (!proposalId) return response.status(400).json({ error: 'Proposta inválida.' });
+    try { return response.json(assistant.confirm(proposalId)); } catch (reason) { return next(reason); }
+  });
 
   app.get('/api/appointments', (_request, response) => {
     const rows = database.prepare('SELECT * FROM appointments ORDER BY date, start_time, title').all();
@@ -149,7 +163,7 @@ export function createApp(database, { serveStatic = true } = {}) {
 
   app.use((error, _request, response, _next) => {
     console.error(error);
-    response.status(500).json({ error: 'Erro interno do servidor.' });
+    response.status(Number(error?.status) || 500).json({ error: Number(error?.status) ? error.message : 'Erro interno do servidor.', code: error?.code });
   });
 
   return app;

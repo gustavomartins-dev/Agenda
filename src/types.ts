@@ -32,3 +32,9 @@ export type AppointmentDraft = Pick<
 >;
 
 export type AppointmentFormErrors = Partial<Record<keyof AppointmentDraft, string>>;
+
+export type AssistantProposal =
+  | { type: 'none'; assistantMessage: string; missingFields?: string[] }
+  | { type: 'create'; assistantMessage: string; proposalId: string; draft: AppointmentDraft }
+  | { type: 'update'; assistantMessage: string; proposalId: string; eventId: string; draft: AppointmentDraft; appointment: Appointment }
+  | { type: 'delete'; assistantMessage: string; proposalId: string; eventId: string; appointment: Appointment };

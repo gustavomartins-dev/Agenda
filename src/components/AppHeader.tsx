@@ -1,4 +1,4 @@
-import { CalendarIcon, PlusIcon } from './Icons';
+import { BatIcon, PlusIcon } from './Icons';
 
 interface AppHeaderProps {
   showActions?: boolean;
@@ -21,10 +21,11 @@ export function AppHeader({
     <header className="app-header">
       <div className="app-header__brand">
         <span className="app-header__logo" aria-hidden="true">
-          <CalendarIcon />
+          <BatIcon />
         </span>
         <div>
-          <h1 className="app-header__title">Agenda Pessoal</h1>
+          <p className="app-header__kicker">Gotham · central de operações</p>
+          <h1 className="app-header__title">Agenda do Cavaleiro</h1>
           <p className="app-header__subtitle">
             {totalAppointments === 0
               ? 'Agenda conectada ao banco de dados'

@@ -108,6 +108,78 @@ npm run preview      # http://localhost:4173
 O `build` gera a interface em `dist/`. Depois, `npm start` serve a interface, a API e o
 banco local pela porta 3001.
 
+### Acesso remoto privado
+
+A agenda pode ser acessada fora de casa enquanto este computador estiver ligado. A
+configuração recomendada usa [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve):
+o navegador recebe HTTPS, o banco continua somente neste computador e a URL só funciona
+para dispositivos autorizados na mesma tailnet. Nenhuma porta do roteador deve ser aberta.
+
+1. Instale o Tailscale neste computador pelo instalador oficial e conecte sua conta:
+
+   ```bash
+   curl -fsSL https://tailscale.com/install.sh | sh
+   sudo tailscale up
+   ```
+
+2. Instale o Tailscale no celular/notebook, entre na mesma tailnet e confirme que ambos
+   aparecem como conectados.
+3. Na pasta do projeto, inicie a agenda:
+
+```bash
+npm run remote:start
+```
+
+O comando cria o build, salva uma cópia do SQLite em `backups/`, configura o proxy HTTPS
+privado e mostra a URL `https://<nome-do-pc>.<tailnet>.ts.net`. O processo deve continuar
+aberto. `Ctrl+C` para o servidor da agenda; para também remover a publicação configurada:
+
+```bash
+npm run remote:stop
+```
+
+> [!WARNING]
+> Não use `tailscale funnel`: ele deixaria a aplicação disponível na internet inteira, e
+> esta agenda não possui tela de login própria. Use somente `tailscale serve`.
+
+#### Iniciar automaticamente no Linux
+
+Depois de instalar, conectar e testar o Tailscale, é possível criar um serviço do usuário:
+
+```bash
+npm run remote:install-service
+```
+
+O serviço `agenda-cavaleiro.service` gera o build, faz backup e inicia a agenda na entrada
+do usuário. Comandos úteis:
+
+```bash
+systemctl --user status agenda-cavaleiro
+systemctl --user restart agenda-cavaleiro
+systemctl --user disable --now agenda-cavaleiro
+```
+
+O Express escuta apenas em `127.0.0.1` por padrão. Assim, no modo de produção, a origem não
+fica exposta diretamente à rede local; o acesso remoto passa pelo Tailscale Serve.
+
+### Assistente Hermes
+
+A seção **Assistente** conversa com o Hermes local através do Express. O navegador nunca
+recebe a chave privada e a porta `8642` não é publicada pelo Tailscale. Antes de ativar,
+confirme o isolamento da API do Hermes:
+
+```bash
+hermes config set platform_toolsets.api_server '["no_mcp"]'
+hermes config get platform_toolsets.api_server --json
+```
+
+O serviço da agenda reutiliza a configuração privada existente em
+`~/agenda-namorada/server/.env`, que deve conter `HERMES_API_BASE_URL`,
+`HERMES_API_SERVER_KEY`, `HERMES_NO_MCP_CONFIRMED=true`, `HERMES_SESSION_ID` e
+`HERMES_TIMEOUT_MS`. Cada conversa gera apenas uma proposta temporária no servidor;
+criar, editar ou excluir exige o botão **Confirmar ação**. A agenda continua funcionando
+normalmente quando o Hermes estiver offline.
+
 ---
 
 ## 4. Scripts
@@ -117,6 +189,10 @@ banco local pela porta 3001.
 | `npm run dev` | Servidor de desenvolvimento com HMR |
 | `npm run build` | Checagem de tipos (`tsc -b`) + build de produção em `dist/` |
 | `npm run preview` | Serve o build de produção |
+| `npm run backup` | Cria uma cópia datada do SQLite em `backups/` |
+| `npm run remote:start` | Prepara e inicia a agenda com acesso privado pelo Tailscale |
+| `npm run remote:stop` | Remove a configuração do Tailscale Serve |
+| `npm run remote:install-service` | Instala a inicialização automática no systemd do usuário |
 | `npm run lint` | ESLint em todo o projeto |
 | `npm run lint:fix` | ESLint aplicando correções automáticas |
 | `npm test` | Executa a suíte de testes uma vez |

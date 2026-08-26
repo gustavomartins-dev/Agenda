@@ -4,32 +4,32 @@
    ========================================================================= */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 
-  --color-primary: #4f46e5;
-  --color-primary-strong: #4338ca;
-  --color-primary-soft: #eef2ff;
-  --color-danger: #dc2626;
-  --color-danger-soft: #fef2f2;
-  --color-success: #15803d;
-  --color-success-soft: #ecfdf5;
+  --color-primary: #f2c94c;
+  --color-primary-strong: #ffe27a;
+  --color-primary-soft: #29240f;
+  --color-danger: #ef6b73;
+  --color-danger-soft: #2b1519;
+  --color-success: #71c7a0;
+  --color-success-soft: #10251d;
 
-  --color-bg: #f5f6fb;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f8fafc;
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-bg: #080a0d;
+  --color-surface: #11151a;
+  --color-surface-muted: #171c22;
+  --color-border: #272d35;
+  --color-border-strong: #3c444f;
+  --color-text: #f2f3f5;
+  --color-text-muted: #929aa6;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
-  --shadow-md: 0 8px 24px -12px rgb(15 23 42 / 22%);
-  --shadow-lg: 0 24px 60px -20px rgb(15 23 42 / 35%);
+  --shadow-sm: 0 1px 0 rgb(255 255 255 / 3%), 0 8px 24px rgb(0 0 0 / 18%);
+  --shadow-md: 0 18px 48px -20px rgb(0 0 0 / 80%);
+  --shadow-lg: 0 30px 80px -24px rgb(0 0 0 / 95%);
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -41,32 +41,12 @@
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
 
-  --focus-ring: 0 0 0 3px rgb(79 70 229 / 35%);
+  --focus-ring: 0 0 0 3px rgb(242 201 76 / 28%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-primary: #818cf8;
-    --color-primary-strong: #a5b4fc;
-    --color-primary-soft: #1e1b4b;
-    --color-danger: #f87171;
-    --color-danger-soft: #2a1416;
-    --color-success: #4ade80;
-    --color-success-soft: #10281c;
-
-    --color-bg: #0b1120;
-    --color-surface: #111827;
-    --color-surface-muted: #172033;
-    --color-border: #24304a;
-    --color-border-strong: #38455f;
-    --color-text: #e6ebf5;
-    --color-text-muted: #94a3b8;
-
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-    --shadow-md: 0 10px 30px -14px rgb(0 0 0 / 70%);
-    --shadow-lg: 0 30px 70px -25px rgb(0 0 0 / 85%);
-
-    --focus-ring: 0 0 0 3px rgb(129 140 248 / 45%);
+    color-scheme: dark;
   }
 }
 
@@ -89,8 +69,11 @@ body {
   line-height: 1.5;
   color: var(--color-text);
   background:
-    radial-gradient(1200px 600px at 100% -10%, rgb(79 70 229 / 10%), transparent 60%),
+    linear-gradient(rgb(255 255 255 / 1.5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 1.5%) 1px, transparent 1px),
+    radial-gradient(900px 480px at 80% -10%, rgb(242 201 76 / 8%), transparent 64%),
     var(--color-bg);
+  background-size: 42px 42px, 42px 42px, auto, auto;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -215,18 +198,12 @@ button {
 
 .button--primary {
   background: var(--color-primary);
-  color: #fff;
+  color: #111318;
   box-shadow: var(--shadow-sm);
 }
 
 .button--primary:hover {
   background: var(--color-primary-strong);
-}
-
-@media (prefers-color-scheme: dark) {
-  .button--primary {
-    color: #10132a;
-  }
 }
 
 .button--ghost {
@@ -315,11 +292,11 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
+  width: 4rem;
   height: 2.75rem;
   border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: #fff;
+  background: transparent;
+  color: #0b0d10;
   box-shadow: var(--shadow-md);
 }
 
@@ -327,6 +304,15 @@ button {
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+.app-header__kicker {
+  margin-bottom: 0.1rem;
+  color: var(--color-primary);
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .app-header__subtitle {
@@ -469,6 +455,388 @@ button {
   .collection-form__row .button { width: 100%; }
 }
 
+/* ------------------------------------------------------ assistente Hermes */
+
+.assistant-page {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.assistant-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(110deg, #12161b, #0c0f13);
+}
+
+.assistant-hero__mark {
+  width: 5rem;
+  flex: 0 0 5rem;
+}
+
+.assistant-hero__mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 18px rgb(242 201 76 / 16%));
+}
+
+.assistant-hero h2 {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.assistant-hero p:not(.assistant-hero__eyebrow) {
+  color: var(--color-text-muted);
+}
+
+.assistant-hero__eyebrow,
+.assistant-proposal__eyebrow {
+  color: var(--color-primary);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.assistant-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.assistant-status i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-success) 14%, transparent);
+}
+
+.assistant-console {
+  max-width: 52rem;
+  width: 100%;
+  margin-inline: auto;
+  padding: 0;
+}
+
+.assistant-messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 20rem;
+  max-height: 48vh;
+  overflow-y: auto;
+  padding: var(--space-5);
+}
+
+.assistant-message {
+  max-width: min(82%, 38rem);
+}
+
+.assistant-message > span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.assistant-message p {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px var(--radius-md) var(--radius-md) var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.assistant-message--user {
+  align-self: flex-end;
+}
+
+.assistant-message--user > span {
+  text-align: right;
+}
+
+.assistant-message--user p {
+  color: #111318;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  border-radius: var(--radius-md) 4px var(--radius-md) var(--radius-md);
+}
+
+.assistant-proposal {
+  margin: 0 var(--space-5) var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 48%, var(--color-border));
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface-muted));
+}
+
+.assistant-proposal h3 {
+  margin-top: 0.15rem;
+}
+
+.assistant-proposal dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.assistant-proposal dt {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.assistant-proposal dd {
+  margin: 0;
+  font-weight: 650;
+}
+
+.assistant-proposal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.assistant-error {
+  margin: 0 var(--space-5) var(--space-3);
+  padding: var(--space-3);
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border-radius: var(--radius-md);
+}
+
+.assistant-composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: #0d1014;
+}
+
+.assistant-composer textarea {
+  min-height: 3rem;
+  max-height: 8rem;
+}
+
+@media (max-width: 620px) {
+  .assistant-hero {
+    align-items: flex-start;
+    padding: var(--space-4);
+  }
+
+  .assistant-hero__mark {
+    width: 3.5rem;
+    flex-basis: 3.5rem;
+  }
+
+  .assistant-status {
+    display: none;
+  }
+
+  .assistant-messages {
+    min-height: 18rem;
+    padding: var(--space-4);
+  }
+
+  .assistant-message {
+    max-width: 90%;
+  }
+
+  .assistant-proposal {
+    margin-inline: var(--space-4);
+  }
+
+  .assistant-proposal dl {
+    grid-template-columns: 1fr;
+  }
+
+  .assistant-composer {
+    grid-template-columns: 1fr;
+    padding-inline: var(--space-4);
+  }
+
+  .assistant-composer .button {
+    width: 100%;
+  }
+}
+
+/* ------------------------------------------------------ identidade Gotham */
+
+.app {
+  min-height: 100%;
+}
+
+.app__shell::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto;
+  height: 3px;
+  z-index: 40;
+  background: linear-gradient(90deg, transparent 5%, var(--color-primary) 35% 65%, transparent 95%);
+  opacity: 0.8;
+}
+
+.app-header {
+  position: relative;
+  min-height: 5.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  width: min(28vw, 15rem);
+  height: 1px;
+  background: var(--color-primary);
+}
+
+.app-header__logo {
+  width: 4.5rem;
+  clip-path: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.app-header__logo svg {
+  width: 4.5rem;
+  height: auto;
+  filter: drop-shadow(0 7px 12px rgb(0 0 0 / 55%));
+}
+
+.app-header__title {
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+}
+
+.card,
+.modal,
+.topic-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before,
+.modal::before,
+.topic-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-primary);
+  opacity: 0.75;
+}
+
+.button {
+  letter-spacing: 0.01em;
+}
+
+.button--subtle {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+.button--subtle:hover,
+.button--primary:hover {
+  box-shadow: 0 0 0 1px rgb(242 201 76 / 20%), 0 8px 24px rgb(242 201 76 / 10%);
+}
+
+.app-tabs {
+  border-radius: var(--radius-sm);
+  background: rgb(17 21 26 / 78%);
+  backdrop-filter: blur(12px);
+}
+
+.app-tabs__tab {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.app-tabs__tab[aria-current='page'] {
+  color: var(--color-primary);
+  background: var(--color-surface-muted);
+  box-shadow: inset 0 -2px var(--color-primary);
+}
+
+.calendar__weekday,
+.day-agenda__eyebrow {
+  letter-spacing: 0.13em;
+}
+
+.day:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 34%, var(--color-border));
+}
+
+.day[data-selected='true'] {
+  box-shadow: 0 8px 20px rgb(242 201 76 / 15%);
+}
+
+.appointment {
+  background: linear-gradient(100deg, var(--color-surface-muted), color-mix(in srgb, var(--color-surface-muted) 85%, #000));
+}
+
+.appointment:hover {
+  border-color: var(--color-border-strong);
+}
+
+.topic-card__icon {
+  filter: grayscale(1);
+}
+
+.topic-card:hover .topic-card__icon {
+  filter: grayscale(0);
+}
+
+.input {
+  caret-color: var(--color-primary);
+}
+
+.modal-backdrop {
+  background: rgb(2 3 5 / 78%);
+  backdrop-filter: blur(8px);
+}
+
+.app__footer {
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 520px) {
+  .app-header__brand {
+    align-items: flex-start;
+  }
+
+  .app-header__logo {
+    width: 3.8rem;
+    height: 2.25rem;
+  }
+
+  .app-header__title {
+    font-size: 1.08rem;
+  }
+
+  .app-header__subtitle {
+    max-width: 34ch;
+  }
+}
+
 @media (min-width: 900px) {
   .app__shell {
     padding-inline: var(--space-6);
@@ -600,22 +968,22 @@ button {
 .day[data-selected='true'] {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: #111318;
 }
 
 .day[data-selected='true'] .day__number {
-  color: #fff;
-  border-color: rgb(255 255 255 / 70%);
+  color: #111318;
+  border-color: rgb(17 19 24 / 45%);
 }
 
 @media (prefers-color-scheme: dark) {
   .day[data-selected='true'] {
-    color: #0b1120;
+    color: #111318;
   }
 
   .day[data-selected='true'] .day__number {
-    color: #0b1120;
-    border-color: rgb(11 17 32 / 45%);
+    color: #111318;
+    border-color: rgb(17 19 24 / 45%);
   }
 }
 
